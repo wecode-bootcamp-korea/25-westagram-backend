@@ -1,3 +1,45 @@
 from django.shortcuts import render
+from django.http      import JsonResponse
+from django.views     import View
+from users.models     import User
 
-# Create your views here.
+import json
+import re
+class SignUpView(View):
+    
+    def post(self,request):
+        data = json.loads(request.body)
+        try:
+
+            if User.objects.filter(email=data['email']).exists():
+                return JsonResponse({"message": "Please use a different email"}, status=400)
+
+            if (data["password"] == ""):
+                return JsonResponse({"message": "Please enter a password"}, status=400)
+                
+            if (data["email"] == ""):
+                return JsonResponse({"message": "Please enter a email"}, status=400)
+                
+            if re.match(r"^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", data["email"]) == None:
+                return JsonResponse({"message": "Email_Error : Need @ and ."}, status=400)
+                
+            if len(data["password"]) < 8 :
+                return JsonResponse({"message": "Password must be at least 8 characters in length"}, status=400)
+
+            if re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]", data["password"]) == None:
+                return JsonResponse({"message": "Password_Error : Need LETTER,NUMBER,SPECIAL_SYMBOLS"}, status=400)
+                    
+            User.objects.create(
+                name          = data['name'],
+                email         = data['email'],
+                password      = data['password'],
+                phone_number  = data['phone_number'],
+                information   = data['imformation'],
+            )
+
+            return JsonResponse({"message": "SUCCESS"}, status=201)
+
+        except KeyError:
+            return JsonResponse({"message": "KeyError"}, status=400)
+        
+
