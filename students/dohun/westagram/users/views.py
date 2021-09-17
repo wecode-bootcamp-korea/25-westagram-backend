@@ -23,15 +23,14 @@ class UserView(View):
                 return JsonResponse({'MESSAGE' : 'EXISTING_EMAIL'}, status=400)
 
             User.objects.create(
-                name             = data['name'],
+                name           = data['name'],
                 email          = email_check,
-                password         = data['password'],
-                phone_number    = data['phone_number'],
-                etc_info        = data['etc_info']
+                password       = password_check,
+                phone_number   = data['phone_number'],
+                etc_info       = data['etc_info']
             )
 
             return JsonResponse({'MESSAGE' : 'SUCCESS'}, status=201)
         
         except KeyError:
             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
-        
