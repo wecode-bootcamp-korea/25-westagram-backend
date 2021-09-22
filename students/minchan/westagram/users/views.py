@@ -14,9 +14,9 @@ class user_register(View) :
         return True
 
 
-    def check_email_duplicate(self,email) :
-        if len(Users.objects.filter(email=email)) == 0 :
-            return True
+    def is_email_duplicate(self,email) :
+        if Users.objects.filter(email=email) :
+            return True # 중복값이 있으면 True를 반환.
         return False
     
 
@@ -76,7 +76,7 @@ class user_register(View) :
             return JsonResponse({"MESSAGE" : wrong_pw_message}, status=400)
         
         #4. 이메울 중복 검사
-        if not self.check_email_duplicate(data_email) :
+        if self.is_email_duplicate(data_email) :
             return JsonResponse({"MESSAGE" : "Email duplicate"}, status=400)
         
         Users.objects.create(
