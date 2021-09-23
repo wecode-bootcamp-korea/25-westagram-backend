@@ -19,9 +19,6 @@ class SignUpView(View):
             if User.objects.filter(email=email).exists():
                 return JsonResponse({'message': 'EMAIL_ALREADY_EXISTS'}, status=400)
 
-            if not email or password:
-                return JsonResponse({'message': 'KEY_ERROR'}, status=400)
-
             regex_email = '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
             regex_password = '^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}'
 
