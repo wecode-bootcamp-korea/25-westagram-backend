@@ -124,24 +124,14 @@ class user_login(View):
         if "user_id" in token_object:
             # 다시 decode로 얻은 user_id를 다시 jwt로 만들었을 때, 데이터가 일치하는지 확인한다.
             user_id = Users.objects.filter(id=token_object["user_id"])[0].id
-            if access_token == jwt.encode({"user_id": user_id}, JWT_KEY, algorithm=JWT_ALGORITHM) :
+            re_encode = jwt.encode({"user_id": user_id}, JWT_KEY, algorithm=JWT_ALGORITHM)
+            if access_token == re_encode :
                 return access_token
         return False
 
 
     def post(self, request):
         data                = json.loads(request.body)
-        #0. 엑세스 토큰이 있는지 확인해서 데이터가 일치하면 바로 성공시킴.
-        if "access_token" in data:
-            jwt_token = self.check_jwt(data["access_token"])
-            if jwt_token: 
-                return JsonResponse({
-                "MESSAGE": "SUCCESS",
-                "access_token": jwt_token
-                }, status=200
-            )
-
-
         #1.계정, 패스워드가 있는지 여부 확인
         if (not data["email"]) and (not data["password"]):
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
@@ -161,3 +151,10 @@ class user_login(View):
             "access_token": jwt_token
             }, status=200
         )
+    
+    def get(self, request):
+        if "Access-Token" in request.headers : 
+            access_token = request.headers["Access-Token"]
+            if self.check_jwt(access_token) : 
+                return HttpResponse("You are Logined!")
+        return HttpResponse("YOU ARE NOT Logined!")
