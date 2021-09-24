@@ -1,11 +1,12 @@
 import json
 import re
 import bcrypt
+import jwt
 from django.http.response   import JsonResponse
 from django.views           import View
 from users.models           import Users
 from django.http            import HttpResponse
-
+from my_settings            import JWT_KEY, JWT_ALGORITHM
 # Create your views here.
 
 
@@ -103,15 +104,44 @@ class user_login(View):
             return True
         return False
 
+
     def check_pw_match(self, email, pw):
         #받은 이메일,패스워드가 일치하면 True반환.
         return bcrypt.checkpw(
             bytes(pw,"utf-8"),
             Users.objects.filter(email=email)[0].password
         )
+    
+
+    def make_jwt(self, email) :
+        user_id = Users.objects.filter(email=email)[0].id
+        return jwt.encode({"user_id": user_id}, JWT_KEY, algorithm=JWT_ALGORITHM)
+
+
+    def check_jwt(self, access_token) :
+        # deocde시에 algorithm = "" 으로 하면 작동하지 않고, algorithms =[] 형태로데이터를 넣어줬더니 작동했다.
+        token_object = jwt.decode(access_token, JWT_KEY, algorithms = [JWT_ALGORITHM])
+        if "user_id" in token_object:
+            # 다시 decode로 얻은 user_id를 다시 jwt로 만들었을 때, 데이터가 일치하는지 확인한다.
+            user_id = Users.objects.filter(id=token_object["user_id"])[0].id
+            if access_token == jwt.encode({"user_id": user_id}, JWT_KEY, algorithm=JWT_ALGORITHM) :
+                return access_token
+        return False
+
 
     def post(self, request):
         data                = json.loads(request.body)
+        #0. 엑세스 토큰이 있는지 확인해서 데이터가 일치하면 바로 성공시킴.
+        if "access_token" in data:
+            jwt_token = self.check_jwt(data["access_token"])
+            if jwt_token: 
+                return JsonResponse({
+                "MESSAGE": "SUCCESS",
+                "access_token": jwt_token
+                }, status=200
+            )
+
+
         #1.계정, 패스워드가 있는지 여부 확인
         if (not data["email"]) and (not data["password"]):
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
@@ -123,4 +153,11 @@ class user_login(View):
         if (not self.check_user_exist(data_email)) and (not self.check_pw_match(data_email, data_pw)):
             return JsonResponse({"message": "INVALID_USER"}, status=401)
 
-        return JsonResponse({"message": "SUCCESS"}, status=200)
+        #3. 토큰 발행
+        jwt_token           =  self.make_jwt(data_email)
+
+        return JsonResponse({
+            "MESSAGE": "SUCCESS",
+            "access_token": jwt_token
+            }, status=200
+        )
