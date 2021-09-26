@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from pathlib import Path
+from pathlib     import Path
 from my_settings import DATABASES, SECRET_KEY
 
 import pymysql
@@ -60,10 +60,10 @@ ROOT_URLCONF = 'westagram.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'BACKEND' : 'django.template.backends.django.DjangoTemplates',
+        'DIRS'    : [],
         'APP_DIRS': True,
-        'OPTIONS': {
+        'OPTIONS' : {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'westagram.wsgi.application'
 APPEND_SLASH = False
 
 ##CORS
-CORS_ORIGIN_ALLOW_ALL=True
+CORS_ORIGIN_ALLOW_ALL  = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_METHODS = (
@@ -135,13 +135,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE     = 'UTC'
 
-USE_I18N = True
+USE_I18N      = True
 
-USE_L10N = True
+USE_L10N      = True
 
-USE_TZ = True
+USE_TZ        = True
 
 
 # Static files (CSS, JavaScript, Images)
