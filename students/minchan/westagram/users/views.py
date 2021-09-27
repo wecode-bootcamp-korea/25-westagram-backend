@@ -20,17 +20,17 @@ class UserRegister(View) :
         return True if self.REGEX_PASSWORD.match(pw) else False
 
     def post(self,request) :
-        data    = json.loads(request.body)
-        email   = data["email"]
-        pw      = data["password"]
+        data        = json.loads(request.body)
+        email       = data["email"]
+        password    = data["password"]
         #이메일, 패스워드의 유효성 및 중복에 대해 검사.        
-        if not (email or pw) :
+        if not (email or password) :
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=401)
 
         if not self.is_email_valid(email) :
             return JsonResponse({"MESSAGE" : "이메일 양식이 틀렸습니다."}, status=401)
 
-        if not self.is_pw_valid(pw) :
+        if not self.is_pw_valid(password) :
             return JsonResponse({"MESSAGE" : "PW_regular_ERROR"}, status=401)
         
         if self.is_email_duplicate(email) :
@@ -39,7 +39,7 @@ class UserRegister(View) :
         Users.objects.create(
             name            = data["name"],
             email           = email,
-            password        = pw,
+            password        = password,
             phone_number    = data["phone_number"],
             profile_etc     = data["profile_etc"],
             )
