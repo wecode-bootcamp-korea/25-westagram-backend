@@ -8,7 +8,7 @@ class User(models.Model):
     user_password    = models.CharField(max_length=50)
     # pip install django-phonenumber-field[phonenumberslite] 설치오류로 우선 CF씀.
     user_phone_num   = models.CharField(max_length=30, unique=True)
-    user_hobby  = models.TextField(max_length=50, null=True)
+    user_hobby       = models.TextField(max_length=50, null=True)
 
     # Meta options: https://docs.djangoproject.com/ko/3.2/topics/db/models/#meta-options
     class Meta:
