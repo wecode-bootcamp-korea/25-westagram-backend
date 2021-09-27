@@ -60,7 +60,7 @@ class UserLogin(View) :
         if not (email and password) :
             return JsonResponse({"message": "KEY_ERROR"}, status=401)
         
-        if not (self.is_user_exist(email) or self.is_pw_match(email,password)):
+        if not (self.is_user_exist(email) and self.is_pw_match(email,password)):
             return JsonResponse({"message": "INVALID_USER"}, status=401)
 
         return JsonResponse({"message": "SUCCESS"}, status=200)
