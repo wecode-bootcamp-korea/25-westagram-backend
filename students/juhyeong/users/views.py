@@ -1,12 +1,10 @@
 import json
 import re
-import bcrypt
 
 from django.http import JsonResponse
 from django.views import View
 
 from users.models import User
-from my_settings import SECRET_KEY
 
 class SignUpsView(View):
     def post(self, request):
@@ -27,12 +25,10 @@ class SignUpsView(View):
         elif len() < 8 or not password_checker.match(data['password']) != None:
             return JsonResponse({"message": "비밀번호 조건을 충족되지 않습니다"}, status =401)
 
-        hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
-
         user.create(
             name         = data['name'],
             email        = data['email'],
-            password     = hashed_password.decode('utf-8'),
+            password     = data['password'],
             phone_number = data['phone_number'],
             profile      = data['profile']
         )
