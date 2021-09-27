@@ -10,13 +10,13 @@ class UserRegister(View) :
     REGEX_EMAIL     = re.compile("[@][a-zA-Z]*[.]")
     REGEX_PASSWORD  = re.compile("/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[`~!@#$%^&*(),<.>/?]).{8,}")
 
-    def valid_email(self,email) :
+    def is_email_valid(self,email) :
         return True if self.REGEX_EMAIL.match(email) else False
 
     def is_email_duplicate(self,email) :
         return Users.objects.filter(email=email).exists()
     
-    def valid_pw(self,pw) :
+    def is_pw_valid(self,pw) :
         return True if self.REGEX_PASSWORD.match(pw) else False
 
     def post(self,request) :
@@ -27,10 +27,10 @@ class UserRegister(View) :
         if not (email or pw) :
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=401)
 
-        if not self.valid_email(email) :
+        if not self.is_email_valid(email) :
             return JsonResponse({"MESSAGE" : "이메일 양식이 틀렸습니다."}, status=401)
 
-        if not self.valid_pw(pw) :
+        if not self.is_pw_valid(pw) :
             return JsonResponse({"MESSAGE" : "PW_regular_ERROR"}, status=401)
         
         if self.is_email_duplicate(email) :
