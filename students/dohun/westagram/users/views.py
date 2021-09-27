@@ -3,7 +3,7 @@ import json, re, bcrypt, jwt
 from django.http  import JsonResponse
 from django.views import View
 from .models      import User
-from my_settings  import SECRET_KEY as SECRET
+from my_settings  import SECRET_KEY, ALGORITHM
 
 class UserView(View):
     def post(self, request):
@@ -23,12 +23,11 @@ class UserView(View):
                 return JsonResponse({'MESSAGE' : 'EXISTING_EMAIL'}, status=400)
 
             hashed_password  = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-            regular_password = hashed_password.decode('utf-8')
 
             User.objects.create(
                 name         = data['name'],
                 email        = email,
-                password     = regular_password,
+                password     = hashed_password,
                 phone_number = data['phone_number'],
                 etc_info     = data['etc_info']
             )
@@ -55,10 +54,9 @@ class LoginView(View):
             if not bcrypt.checkpw(user.password.encode('utf-8'), password.encode('utf-8')):
                 return JsonResponse({'MESSAGE': 'INVALID_USER'}, status = 401)
 
-            access_token = jwt.encode({'id' : user.id}, SECRET, algorithm = 'HS256')
+            access_token = jwt.encode({'id' : user.id}, SECRET_KEY, algorithm = ALGORITHM)
         
             return JsonResponse({'MESSAGE': 'SUCCESS', 'TOKEN': access_token}, status = 200)
-
         
         except KeyError:
             return JsonResponse({'MESSAGE': 'Key_Error'}, status = 401)
