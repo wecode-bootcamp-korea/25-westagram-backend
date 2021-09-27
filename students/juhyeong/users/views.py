@@ -11,7 +11,7 @@ class SignUpsView(View):
         data             = json.loads(request.body)
         email_checker    = re.compile('^[\w]+@[\w.\-]+\.[A-Za-z]{2,3}$')
         password_checker = re.compile('^(?=.*[A-Za-z])(?=.*\d)(?=.*[~!@#$^&*()+|=])[A-Za-z\d~!@#$%^&*()+|=]{8,}$')
-        user             = User.objects.all()
+        user             = User.objects
 
         if 'email' not in data or 'password' not in data:
             return JsonResponse({"message": "KEY_ERROR"}, status =400)
