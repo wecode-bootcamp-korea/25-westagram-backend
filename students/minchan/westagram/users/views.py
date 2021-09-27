@@ -17,7 +17,7 @@ class UserRegister(View) :
         return Users.objects.filter(email=email).exists()
     
     def valid_pw(self,pw) :
-        return True if not self.REGEX_PASSWORD.match(pw) else False
+        return True if self.REGEX_PASSWORD.match(pw) else False
 
     def post(self,request) :
         data    = json.loads(request.body)
