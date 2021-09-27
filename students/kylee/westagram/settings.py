@@ -56,6 +56,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+APPEND_SLASH = False
+
 CROSS_ORIGIN_ALLOW_ALL = True
 CROOS_ORIGIN_CREDENTIAL = True
 
