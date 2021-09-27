@@ -16,13 +16,13 @@ class SignUp(View):
             email        = data['email']
             password     = data['password']
             phone_number = data['phone_number']
-            blog_url     = data.get('blog_url')  # null = True
+            blog_url     = data.get('blog_url')
 
             validate_email(email)
             validate_password(password)
             
             if User.objects.filter(email = email).exists():
-                return JsonResponse({'MESSAGE':'ALREADY_EXISTS_EMAIL'}, status=400)
+                return JsonResponse({'MESSAGE':'ALREADY_EXISTS_EMAIL'}, status=404)
             
             User.objects.create(
                 name         = name,
