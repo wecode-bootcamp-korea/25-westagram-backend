@@ -23,11 +23,12 @@ class UserView(View):
                 return JsonResponse({'MESSAGE' : 'EXISTING_EMAIL'}, status=400)
 
             hashed_password  = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            decode_password = hashed_password.decode('utf-8')
 
             User.objects.create(
                 name         = data['name'],
                 email        = email,
-                password     = hashed_password,
+                password     = decode_password,
                 phone_number = data['phone_number'],
                 etc_info     = data['etc_info']
             )
@@ -51,7 +52,7 @@ class LoginView(View):
 
             user = User.objects.get(email = email)
 
-            if not bcrypt.checkpw(user.password.encode('utf-8'), password.encode('utf-8')):
+            if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
                 return JsonResponse({'MESSAGE': 'INVALID_USER'}, status = 401)
 
             access_token = jwt.encode({'id' : user.id}, SECRET_KEY, algorithm = ALGORITHM)
