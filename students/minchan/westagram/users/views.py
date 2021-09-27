@@ -47,22 +47,3 @@ class UserRegister(View) :
 
         return JsonResponse({"MESSAGE" : "CREATED"}, status=201)
 
-class UserLogin(View) :
-    def is_user_exist(self,email) :
-        return Users.objects.filter(email=email).exists()
-    
-    def is_pw_match(self,email,password) :
-        return Users.objects.filter(email=email)[0].password == password
-    
-    def post(self,request) :
-        data        = json.loads(request.body)
-        email       = data["email"]
-        password    = data["password"]
-
-        if not (email and password) :
-            return JsonResponse({"message": "KEY_ERROR"}, status=401)
-        
-        if not (self.is_user_exist(email) and self.is_pw_match(email,password)):
-            return JsonResponse({"message": "INVALID_USER"}, status=401)
-
-        return JsonResponse({"message": "SUCCESS"}, status=200)
