@@ -1,8 +1,6 @@
 from django.urls    import path
-from users.views    import SignIn, SignUp
+from users.views    import SignUpView
 
 urlpatterns = [
-    path('/signup', SignUp.as_view()),
-    path('/signin', SignIn.as_view()), 
+    path('/signup', SignUpView.as_view()),
 ]
-	# 클래스 뷰를 만들고 여기다가 연결을 해줘야 함!
