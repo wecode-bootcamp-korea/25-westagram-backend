@@ -1,15 +1,14 @@
-from users.models import User
-from django.shortcuts import render
-
 import json
 import re
+
+from users.models import User
+from django.shortcuts import render
 from django.http import JsonResponse
 from django.views import View
 
 
 class SignUpView(View):
     def post(self, request):
-
         try:
             data = json.loads(request.body)
 
@@ -36,5 +35,6 @@ class SignUpView(View):
             )
 
             return JsonResponse({'message': 'SUCCESS'}, status=201)
+
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
