@@ -45,30 +45,23 @@ class UserRegister(View) :
             )
 
         return JsonResponse({"MESSAGE" : "CREATED"}, status=201)
-class user_login(View) :
-    def check_user_exist(self,email) :
-        # 이메일이 존재하면 True를 반환.
-        if Users.objects.filter(email=email) :
-            return True
-        return False
+class UserLogin(View) :
+    def is_user_exist(self,email) :
+        return Users.objects.filter(email=email).exists()
     
-    def check_pw_match(self,email,pw) :
-        #받은 이메일,패스워드가 일치하면 True반환.
-        return Users.objects.filter(email=email)[0].password == pw
-
+    def is_pw_match(self,email,password) :
+        return Users.objects.filter(email=email)[0].password == password
 
     def post(self,request) :
-        data        = json.loads(request.body)
-        data_email  = data["email"]
-        data_pw     = data["password"]
+        data         = json.loads(request.body)
+        email        = data["email"]
+        password     = data["password"]
 
-        #1.계정, 패스워드가 있는지 여부
-        if (not data_email) and (not data_pw) :
-            return JsonResponse({"message": "KEY_ERROR"}, status=400)
+        if not (email and password) :
+            return JsonResponse({"message": "KEY_ERROR"}, status=401)
         
-        #2. 계정이 있는지 여부, 3. 패스워드가 맞는지 여부
-        if (not self.check_user_exist(data_email)) and (not self.check_pw_match(data_email,data_pw)):
-            return JsonResponse({"message": "INVALID_USER"}, status=401)    
+        if not (self.is_user_exist(email) or self.is_pw_match(email,password)):
+            return JsonResponse({"message": "INVALID_USER"}, status=401)
 
         return JsonResponse({"message": "SUCCESS"}, status=200)
 
