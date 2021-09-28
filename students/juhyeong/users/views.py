@@ -22,10 +22,10 @@ class SignUpsView(View):
         if user.filter(email=data['email']).exists():
             return JsonResponse({"message": "이메일이 이미 등록되었습니다"}, status =401)
 
-        if not email_checker.match(data['email']) != None:
+        if not re.match('^[\w]+@[\w.\-]+\.[A-Za-z]{2,3}$', data['email']):
             return JsonResponse({"message": "이메일 형식이 잘못 되었습니다"}, status =401)
         
-        elif len(data['password']) < 8 or not password_checker.match(data['password']) != None:
+        if not re.match('^(?=.*[A-Za-z])(?=.*\d)(?=.*[~!@#$^&*()+|=])[A-Za-z\d~!@#$%^&*()+|=]{8,}$', data['password']):
             return JsonResponse({"message": "비밀번호 조건을 충족되지 않습니다"}, status =401)
 
         user.create(
