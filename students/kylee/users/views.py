@@ -15,20 +15,24 @@ class SignupView(View) :
             password  = data.get('password', None)
             birthday  = data.get('birthday', None)
 
-            if not email or not password :
+            if not email  :
 
-                return JsonResponse({'message':'KEY_ERROR'}, status=400)
+                return JsonResponse({'message':'KEY_ERROR BY EMAIL'}, status=400)
+
+            if not password :
+    
+                return JsonResponse({'message':'KEY_ERROR BY PASSWORD'}, status=400)  
             
             if email :
                 if not re.match('^[\w+-\_.]+@[\w]+\.[\w]+$', email) :
-                    return JsonResponse({'ValidationError':'이메일은 @ 와 . 이 형식에 맞게 순서대로 들어가야 합니다.'}, status=400)
+                    return JsonResponse({'message':'이메일은 @ 와 . 이 형식에 맞게 순서대로 들어가야 합니다.'}, status=400)
 
                 if Users.objects.filter(email=email).exists() :
                     return JsonResponse({'message':'기존재 이메일입니다.'}, status=400)
 
             if password :
                 if not re.match('^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+=-])[a-zA-Z0-9!@#$%^&*()_+=-]{8,}$', password) :
-                    return JsonResponse({'ValidationError':'비밀번호에는 숫자/문자/특수문자가 1개씩 들어가야 합니다.'}, status=400)
+                    return JsonResponse({'message':'비밀번호에는 숫자/문자/특수문자가 1개씩 들어가야 합니다.'}, status=400)
 
             Users.objects.create(
                 email     = email,
