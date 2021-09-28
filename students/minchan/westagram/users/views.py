@@ -5,10 +5,11 @@ from django.views           import View
 from users.models           import Users
 from django.http            import HttpResponse
 
-# Create your views here.
+
 class UserRegister(View) :
     REGEX_EMAIL     = re.compile("[@][a-zA-Z]*[.]")
     REGEX_PASSWORD  = re.compile("/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[`~!@#$%^&*(),<.>/?]).{8,}")
+
 
     def is_email_valid(self,email) :
         return True if self.REGEX_EMAIL.match(email) else False
@@ -45,3 +46,23 @@ class UserRegister(View) :
             )
 
         return JsonResponse({"MESSAGE" : "CREATED"}, status=201)
+
+class UserLogin(View) :
+    def is_user_exist(self,email) :
+        return Users.objects.filter(email=email).exists()
+    
+    def is_pw_match(self,email,password) :
+        return Users.objects.filter(email=email)[0].password == password
+    
+    def post(self,request) :
+        data        = json.loads(request.body)
+        email       = data["email"]
+        password    = data["password"]
+
+        if not (email and password) :
+            return JsonResponse({"message": "KEY_ERROR"}, status=401)
+        
+        if not (self.is_user_exist(email) and self.is_pw_match(email,password)):
+            return JsonResponse({"message": "INVALID_USER"}, status=401)
+
+        return JsonResponse({"message": "SUCCESS"}, status=200)
