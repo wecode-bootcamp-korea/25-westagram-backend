@@ -5,7 +5,7 @@ from django.views import View
 from .models      import User
 from my_settings  import SECRET_KEY, ALGORITHM
 
-class UserView(View):
+class SignupView(View):
     def post(self, request):
 
         try:
@@ -22,15 +22,15 @@ class UserView(View):
             if User.objects.filter(email=email).exists():
                 return JsonResponse({'MESSAGE' : 'EXISTING_EMAIL'}, status=400)
 
-            hashed_password  = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-            decode_password = hashed_password.decode('utf-8')
+            hashed_password   = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            decoded_password  = hashed_password.decode('utf-8')
 
             User.objects.create(
                 name         = data['name'],
                 email        = email,
-                password     = decode_password,
+                password     = decoded_password,
                 phone_number = data['phone_number'],
-                etc_info     = data['etc_info']
+                etc_info     = data.get('etc_info', 'please choose username')
             )
 
             return JsonResponse({'MESSAGE' : 'SUCCESS'}, status=201)
