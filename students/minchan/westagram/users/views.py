@@ -1,6 +1,5 @@
 import json
 import re
-import bcrypt
 from django.http.response   import JsonResponse
 from django.views           import View
 from users.models           import Users
@@ -23,7 +22,7 @@ class UserRegister(View) :
         data            = json.loads(request.body)
         email           = data["email"]
         password        = data["password"]
-        password_bcrypt = bcrypt.hashpw(bytes(password,"utf-8"),bcrypt.gensalt())
+
 
         #이메일, 패스워드의 유효성 및 중복에 대해 검사.        
         if not (email or password) :
@@ -41,7 +40,7 @@ class UserRegister(View) :
         Users.objects.create(
             name            = data["name"],
             email           = email,
-            password        = password_bcrypt,
+            password        = password,
             phone_number    = data["phone_number"],
             profile_etc     = data["profile_etc"],
             )
@@ -51,10 +50,7 @@ class UserRegister(View) :
 class UserLogin(View) :
     def is_user_exist(self,email) :
         return Users.objects.filter(email=email).exists()
-    
-    def is_pw_match(self,email,password) :
-        return Users.objects.filter(email=email)[0].password == password
-    
+
     def post(self,request) :
         data        = json.loads(request.body)
         email       = data["email"]
@@ -63,7 +59,7 @@ class UserLogin(View) :
         if not (email and password) :
             return JsonResponse({"message": "KEY_ERROR"}, status=401)
         
-        if not (self.is_user_exist(email) and self.is_pw_match(email,password)):
+        if not (self.is_user_exist(email)):
             return JsonResponse({"message": "INVALID_USER"}, status=401)
 
         return JsonResponse({"message": "SUCCESS"}, status=200)
