@@ -14,10 +14,7 @@ class SignUpView(View):
             password     = data['password']
             phone_number = data['phone_number']
             gender       = data['gender']
-            date_birth   = data['date_birth']
-
-            if password == '' or email == '':
-                return JsonResponse({"message":"Email or Password cannot be empty"}, status=400)
+            date_birth   = data.get('date_birth')
             
             if User.objects.filter(email=email).exists():
                 return JsonResponse({"message":"Email already exists"}, status=400)
@@ -27,9 +24,10 @@ class SignUpView(View):
 
             if not re.match('^(?=.*[A-Za-z])(?=.*\d)(?=.*[?!@#$%*&])[A-Za-z\d?!@#$%*&]{8,}$', password):
                 return JsonResponse({'message':'Password format is not valid'}, status=400)
-
-            if not re.match('^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$', date_birth): 
-                return JsonResponse({'message':'Date format must be in YYYY-MM-DD'}, status=400)
+            
+            if date_birth is not None:
+                if not re.match('^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$', date_birth): 
+                    return JsonResponse({'message':'Date format must be in YYYY-MM-DD'}, status=400)
 
             User.objects.create(
                 name         = name,
