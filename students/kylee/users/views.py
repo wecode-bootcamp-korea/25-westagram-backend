@@ -1,40 +1,63 @@
+import bcrypt
 import json
-import re
+import jwt
 
-from django.views import View
-from django.http  import JsonResponse
-from users.models import User
+from django.views           import View
+from django.http            import JsonResponse
+from users.models           import User
+from django.core.exceptions import ValidationError
+from my_settings            import MY_ALGORITMS, MY_SECRET_KEY
+from datetime               import (
+    datetime, 
+    timedelta
+)
+
 
 class SignupView(View) :
     def post(self, request) :
-        data = json.loads(request.body)
 
         try :
+
+            data = json.loads(request.body)
+        
             email     = data['email']
             password  = data['password']
             birthday  = data.get('birthday', None)
-            
-            if not re.match('^[\w+-\_.]+@[\w]+\.[\w]+$', email) :
-                return JsonResponse({'message':'이메일은 @ 와 . 이 형식에 맞게 순서대로 들어가야 합니다.'}, status=400)
 
             if User.objects.filter(email=email).exists() :
                 return JsonResponse({'message':'기존재 이메일입니다.'}, status=400)
-
-            if not re.match('^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+=-])[a-zA-Z0-9!@#$%^&*()_+=-]{8,}$', password) :
-                return JsonResponse({'message':'비밀번호에는 숫자/문자/특수문자가 1개씩 들어가야 합니다.'}, status=400)
-
-            User.objects.create(
+            
+            user = User.objects.create(
                 email     = email,
                 password  = password,
                 name      = data['name'],
                 telephone = data['telephone'],
                 birthday  = birthday
             )
+            
+            user.full_clean()
+            
+            user.password = user.password.encode('utf-8')
+            user.password = bcrypt.hashpw(user.password, bcrypt.gensalt())
+            user.password = user.password.decode('utf-8')
+
+            user.save()
 
             return JsonResponse({'mesage':'SUCCESS'},status=201)
         
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
+
+        except ValidationError as msg :
+            if User.objects.filter(email=email).exists() :
+                User.objects.filter(email=email).delete()
+
+            messages = ''
+
+            for message in msg.messages :
+                messages += message
+
+            return JsonResponse({'message':messages}, status=400)
 
 class LoginView(View) :
     def post(self, request) :
@@ -47,10 +70,18 @@ class LoginView(View) :
             if not User.objects.filter(email=email).exists() :
                 return JsonResponse({'message':'INVALID_USER BY EMAIL'}, status=401)
             
-            if not User.objects.filter(password=password).exists() :
-                return JsonResponse({'message':'INVALID USER BY PASSWORD'}, status=401)
+            user = User.objects.get(email=email)
+
+            inputed_password = password.encode('utf-8')
+            db_password      = user.password.encode('utf-8')
+
+            if bcrypt.checkpw(inputed_password, db_password) :
+
+                token = jwt.encode({'email':email, 'exp':datetime.utcnow()+timedelta(weeks=3)}, MY_SECRET_KEY, MY_ALGORITMS)
             
-            return JsonResponse({'message':'SUCCESS'}, status=200)
+                return JsonResponse({'message':'SUCCESS', 'token':token}, status=200)
+            
+            return JsonResponse({'message':'INVALID USER BY PASSWORD'}, status=401)
 
         except KeyError :
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
