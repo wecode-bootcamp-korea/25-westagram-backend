@@ -1,5 +1,4 @@
 from django.db import models
-import re
 
 
 class User(models.Model):

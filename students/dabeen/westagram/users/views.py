@@ -42,7 +42,7 @@ class SignInView(View):
         try:
             data = json.loads(request.body)
 
-            if User.objects.filter(email=data['email']).exists():
+            if not User.objects.filter(email=data['email']).exists():
                 return JsonResponse({'message': 'UKNOWN_USER'}, status=400)
 
             user = User.objects.get(email=data['email'])
