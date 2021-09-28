@@ -3,14 +3,13 @@ import json
 import jwt
 
 from django.views           import View
+from django.utils           import timezone
 from django.http            import JsonResponse
 from users.models           import User
 from django.core.exceptions import ValidationError
 from my_settings            import MY_ALGORITMS, MY_SECRET_KEY
-from datetime               import (
-    datetime, 
-    timedelta
-)
+from datetime               import timedelta
+
 
 
 class SignupView(View) :
@@ -77,7 +76,7 @@ class LoginView(View) :
 
             if bcrypt.checkpw(inputed_password, db_password) :
 
-                token = jwt.encode({'email':email, 'exp':datetime.utcnow()+timedelta(weeks=3)}, MY_SECRET_KEY, MY_ALGORITMS)
+                token = jwt.encode({'email':email, 'exp':timezone.now()+timedelta(weeks=3)}, MY_SECRET_KEY, MY_ALGORITMS)
             
                 return JsonResponse({'message':'SUCCESS', 'token':token}, status=200)
             
