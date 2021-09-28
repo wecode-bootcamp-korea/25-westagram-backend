@@ -40,7 +40,6 @@ class SignUpView(View):
 
 
 class SignInView(View):
-    # Use User's email and password
     def get(self, request):
         try:
             data = json.loads(request.body)
