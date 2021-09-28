@@ -33,6 +33,8 @@ class SignUpsView(View):
             email        = data['email'],
             password     = data['password'],
             phone_number = data['phone_number'],
-            profile      = data['profile']
         )
+        if data.get('profile'):
+            user.last().profile = data['profile']
+
         return JsonResponse({'CREATED':'SUCCESS'}, status = 201)
