@@ -10,17 +10,14 @@ class SignupView(View) :
         data = json.loads(request.body)
 
         try :
-
             email     = data.get('email',    None)
             password  = data.get('password', None)
             birthday  = data.get('birthday', None)
 
             if not email  :
-
                 return JsonResponse({'message':'KEY_ERROR BY EMAIL'}, status=400)
 
             if not password :
-    
                 return JsonResponse({'message':'KEY_ERROR BY PASSWORD'}, status=400)  
             
             if email :
