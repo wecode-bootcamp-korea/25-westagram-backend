@@ -1,10 +1,12 @@
 import json
 import re
 import bcrypt
+import jwt
 from django.http.response   import JsonResponse
 from django.views           import View
 from users.models           import Users
 from django.http            import HttpResponse
+from my_settings            import JWT_KEY, JWT_ALGORITHM
 class UserRegister(View) :
     REGEX_EMAIL     = re.compile("[@][a-zA-Z]*[.]")
     REGEX_PASSWORD  = re.compile("/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[`~!@#$%^&*(),<.>/?]).{8,}")
@@ -54,16 +56,26 @@ class UserLogin(View) :
     
     def is_pw_match(self,email,password) :
         return bcrypt.checkpw(password.encode('utf-8'), Users.objects.filter(email=email)[0].password.encode('utf-8'))
+
+    def make_jwt(self,email) :
+        user_id = Users.objects.filter(email=email)[0].id
+        return jwt.encode({"user_id": user_id}, JWT_KEY, algorithm=JWT_ALGORITHM)
+
     
     def post(self,request) :
         data        = json.loads(request.body)
         email       = data["email"]
         password    = data["password"]
+        jwt_token   = self.make_jwt(email)
 
         if not (email and password) :
             return JsonResponse({"message": "KEY_ERROR"}, status=401)
         
         if not (self.is_user_exist(email) and self.is_pw_match(email,password)):
             return JsonResponse({"message": "INVALID_USER"}, status=401)
-
-        return JsonResponse({"message": "SUCCESS"}, status=200)
+        
+        return JsonResponse({
+            "MESSAGE": "SUCCESS",
+            "access_token": jwt_token
+            }, status=200
+        )
