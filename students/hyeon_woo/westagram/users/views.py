@@ -26,6 +26,7 @@ class SignUpView(View):
             
             if not re.match(REGEX_EMAIL, data["email"]):
                 return JsonResponse({"message": "Email_Error : Need @ and ."}, status=400)
+                
             if not re.match(REGEX_PASSWORD, data["password"]):
                 return JsonResponse({"message": "Password_Error : Need 8LETTER,NUMBER,SPECIAL_SYMBOLS"}, status=400)
 
