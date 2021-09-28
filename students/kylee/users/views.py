@@ -3,7 +3,7 @@ import re
 
 from django.views import View
 from django.http  import JsonResponse
-from users.models import *
+from users.models import Users
 
 class SignupView(View) :
     def post(self, request) :
