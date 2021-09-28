@@ -7,8 +7,8 @@ from users.models import User
 
 class SignUpView(View):
     def post(self, request):
-        data = json.loads(request.body)
         try:
+            data = json.loads(request.body)
             name         = data['name']
             email        = data['email']
             password     = data['password']
@@ -44,17 +44,17 @@ class SignUpView(View):
 
 class LogInView(View):
     def post(self,request):
-        data = json.loads(request.body)
         try:
-            input_email    = data['email']
-            input_password = data['password']
+            data     = json.loads(request.body)
+            email    = data['email']
+            password = data['password']
 
-            if not User.objects.filter(email=input_email).exists():
+            if not User.objects.filter(email=email).exists():
                 return JsonResponse({'message':'INVALID_EMAIL'}, status=401)
 
-            user = User.objects.get(email=input_email)
+            user = User.objects.get(email=email)
             
-            if user.password == input_password:
+            if user.password == password:
                 return JsonResponse({'message':'SUCCESS'}, status=200)
 
             return JsonResponse({'message':'INVALID_USER'}, status=401)
