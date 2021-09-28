@@ -13,13 +13,16 @@ class SignUpsView(View):
         password_checker = re.compile('^(?=.*[A-Za-z])(?=.*\d)(?=.*[~!@#$^&*()+|=])[A-Za-z\d~!@#$%^&*()+|=]{8,}$')
         user             = User.objects
 
-        if 'email' not in data or 'password' not in data:
-            return JsonResponse({"message": "KEY_ERROR"}, status =400)
+        if 'email' not in data:
+            return JsonResponse({"message": "KEY_ERROR" + ": email"}, status =400)
+
+        if 'password' not in data:
+            return JsonResponse({"message": "KEY_ERROR"+":password"}, status =400)
 
         if user.filter(email=data['email']).exists():
             return JsonResponse({"message": "이메일이 이미 등록되었습니다"}, status =401)
 
-        elif not email_checker.match(data['email']) != None:
+        if not email_checker.match(data['email']) != None:
             return JsonResponse({"message": "이메일 형식이 잘못 되었습니다"}, status =401)
         
         elif len(data['password']) < 8 or not password_checker.match(data['password']) != None:
