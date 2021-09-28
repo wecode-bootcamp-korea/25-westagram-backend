@@ -41,7 +41,7 @@ class UserRegister(View) :
         Users.objects.create(
             name            = data["name"],
             email           = email,
-            password        = password_bcrypt,
+            password        = password_bcrypt.decode('utf-8'),
             phone_number    = data["phone_number"],
             profile_etc     = data["profile_etc"],
             )
@@ -53,7 +53,7 @@ class UserLogin(View) :
         return Users.objects.filter(email=email).exists()
     
     def is_pw_match(self,email,password) :
-        return bcrypt.checkpw(password.encode('utf-8'), Users.objects.filter(email=email)[0].password[2:-1].encode('utf-8'))
+        return bcrypt.checkpw(password.encode('utf-8'), Users.objects.filter(email=email)[0].password.encode('utf-8'))
     
     def post(self,request) :
         data        = json.loads(request.body)
