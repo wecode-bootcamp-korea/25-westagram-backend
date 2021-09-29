@@ -1,5 +1,6 @@
 # built-in module
 import json
+from os import access
 import bcrypt
 import re
 
@@ -51,7 +52,7 @@ class SignUpView(View):
 
 
 class SignInView(View):
-    def get(self, request):
+    def post(self, request):
         try:
             data = json.loads(request.body)
             email = data['email']
@@ -65,7 +66,7 @@ class SignInView(View):
                 access_token = jwt.encode(
                     {'id': user.id}, SECRET_KEY, algorithm=ALGORITHM)
 
-                return JsonResponse({"access_token": f'{access_token}'}, status=200)
+                return JsonResponse({"access_token": access_token.decode('utf-8')}, status=200)
 
             return JsonResponse({'message': "INVAILD_USERS"}, status=401)
 
