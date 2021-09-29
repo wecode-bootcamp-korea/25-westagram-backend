@@ -1,4 +1,4 @@
-import json, re
+import json, re, bcrypt
 
 from django.http  import JsonResponse
 from django.views import View
@@ -29,10 +29,13 @@ class SignUpView(View):
                 if not re.match('^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$', date_birth): 
                     return JsonResponse({'message':'Date format must be in YYYY-MM-DD'}, status=400)
 
+            hashed_password  = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            decoded_password = hashed_password.decode('utf-8')
+
             User.objects.create(
                 name         = name,
                 email        = email,
-                password     = password,
+                password     = decoded_password,
                 phone_number = phone_number,
                 gender       = gender,
                 date_birth   = date_birth,
