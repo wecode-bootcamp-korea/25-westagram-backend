@@ -8,7 +8,7 @@ from users.models import User
 class SignUpView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            data         = json.loads(request.body)
             name         = data['name']
             email        = data['email']
             password     = data['password']
@@ -54,10 +54,10 @@ class LogInView(View):
 
             user = User.objects.get(email=email)
             
-            if user.password == password:
-                return JsonResponse({'message':'SUCCESS'}, status=200)
+            if user.password != password:
+                return JsonResponse({'message':'INVALID_USER'}, status=401)
 
-            return JsonResponse({'message':'INVALID_USER'}, status=401)
+            return JsonResponse({'message':'SUCCESS'}, status=200)
             
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
