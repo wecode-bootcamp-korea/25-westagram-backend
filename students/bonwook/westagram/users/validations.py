@@ -1,7 +1,6 @@
 import re
 
 from .models import User
-from django.db.utils import IntegrityError
 
 def validate_email(address):
     email_pattern = re.compile('[a-zA-Z0-9_\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-]+')
@@ -15,8 +14,9 @@ def validate_email(address):
 def validate_password(password):
     password_pattern = re.compile('(?=.*[a-z])(?=.*[0-9])(?=.*[@!#$%&?*$]).+')
     users_password   = re.match(password_pattern, password)
+    PASSWORD_LENGTH  = 8
 
-    if users_password == None or len(users_password.group()) < 8:
+    if users_password == None or len(PASSWORD_LENGTH) < 8:
         return False
     else:
-        return users_password.group()
+        return PASSWORD_LENGTH
