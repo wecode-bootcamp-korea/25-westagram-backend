@@ -37,3 +37,19 @@ class SignUpsView(View):
             user.last().profile = data['profile']
 
         return JsonResponse({'CREATED':'SUCCESS'}, status = 201)
+
+class LoginsView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        user = User.objects
+
+        if 'email' not in data:
+            return JsonResponse({"message": "KEY_ERROR" + ": email"}, status = 400)
+
+        if 'password' not in data:
+            return JsonResponse({"message": "KEY_ERROR"+":password"}, status = 400)
+
+        if not user.filter(email=data['email']).filter(password = data['password']).exists():
+            return JsonResponse({"message": "INVALID_USER"}, status = 401)
+
+        return JsonResponse({'CREATED':'SUCCESS'}, status = 200)
