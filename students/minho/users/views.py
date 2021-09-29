@@ -37,7 +37,7 @@ class SignUpView(View):
             User.objects.create(
                 name         = name,
                 email        = email,
-                password     = decoded_password,
+                password     = decoded_password, # 생성하는 비밀번호가 디코드된 비밀번호이어야 함!
                 other_info   = other_info,
                 phone_number = phone_number
             )
@@ -60,7 +60,7 @@ class SignInView(View):
 				
                 if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
                     access_token = jwt.encode(
-						{'id' : user.id}, SECRET_KEY, algorithm = ALGORITHM
+						{'id' : user.id}, SECRET_KEY, algorithm = ALGORITHM # 이부분 이해해야함. 시크릿키는 my_settings.py에 있는 것
 					)
 
                     return JsonResponse({'access_token' : access_token}, status=200)
