@@ -15,14 +15,10 @@ class SignupView(View):
                 return JsonResponse({"message": "KEY_ERROR"}, status=400)
 
             if not validate_email(data['email']):
-                return JsonResponse({
-                    'Validation_Error' : '이메일은 @와 .가 포함된 이메일 형식이어야 합니다.'
-                }, status = 400)
+                return JsonResponse({'message' : 'INVALID_EMAIL'}, status = 400)
 
             if not validate_password(data['password']):
-                return JsonResponse({
-                    'Validation_Error' : '비밀번호는 8자리 이상으로 숫자, 문자, 특수기호가 하나 이상 포함되어야 합니다.'
-                }, status = 400)
+                return JsonResponse({'message' : 'INVALID_PASSWORD'}, status = 400)
                     
             if not User.objects.filter(email=data['email']):
                 user = User.objects.create(
@@ -33,7 +29,7 @@ class SignupView(View):
                     date_of_birth   = data.get('date_of_birth'),
                 )
             else:
-                return JsonResponse({'message' : '중복된 이메일입니다.'}, status=400)
+                return JsonResponse({'message' : 'DUPLICATED_EMAIL'}, status=400)
 
             return JsonResponse({'message' : 'CREATED'}, status = 201)
 
@@ -46,7 +42,7 @@ class LoginView(View):
             data = json.loads(request.body)
 
             if 'email' not in data or 'password' not in data:
-                raise KeyError
+                return JsonResponse({"message": "KEY_ERROR"}, status = 400)
             
             if not User.objects.filter(email=data['email']):
                 return JsonResponse({"message": "INVALID_USER"}, status = 401)
@@ -57,8 +53,5 @@ class LoginView(View):
             else:
                 return JsonResponse({"message": "SUCCESS"}, status = 200)
 
-        except KeyError:
-            return JsonResponse({"message": "KEY_ERROR"}, status = 400)
-        
         except Exception as e:
             return JsonResponse({'message' : e}, status = 400)            
