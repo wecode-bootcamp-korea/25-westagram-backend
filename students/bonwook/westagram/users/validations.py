@@ -1,7 +1,5 @@
 import re
 
-from .models import User
-
 def validate_email(address):
     email_pattern = re.compile('[a-zA-Z0-9_\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-]+')
     users_email   = re.match(email_pattern, address)
