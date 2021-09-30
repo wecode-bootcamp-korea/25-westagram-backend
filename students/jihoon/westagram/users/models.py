@@ -6,7 +6,7 @@ class User(models.Model):
     email       = models.EmailField(unique=True)
     password    = models.CharField(max_length=100)
     contact     = models.CharField(max_length=100, null=True, default='')
-    other_info  = models.CharField(max_length=100)
+    other_info  = models.CharField(max_length=100, null=True, default='')
 
 
     class Meta:
