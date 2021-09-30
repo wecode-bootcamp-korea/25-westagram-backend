@@ -33,17 +33,15 @@ class SignUp(View):
             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
 
 class LogIn(View):
-    def get(self, request):
+    def post(self, request):
         data = json.loads(request.body)
 
         try:
-            # check email
             if not User.objects.filter(email=data['email']).exists():
-                return JsonResponse({'MESSAGE': 'DON\'T_EXIST_USER'}, status=401)
+                return JsonResponse({'MESSAGE': 'INVALID_USER'}, status=401)
 
-            # check password
-            password_check = User.objects.get(email=data['email']).password
-            if not password_check == data['password']:
+            password = User.objects.get(email=data['email']).password
+            if not password == data['password']:
                 return JsonResponse({'MESSAGE': 'INVALID_PASSWORD'}, status=401)
 
             return JsonResponse({'MESSAGE': 'SUCCESS'}, status=201)
