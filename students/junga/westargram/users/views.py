@@ -16,10 +16,10 @@ class SignUpView(View):
             if (data['email'] == '') or (data['password'] == ''):
                 return JsonResponse({'message' : 'KEY_ERROR'}, status=400) 
            
-            #if not re.match(r"^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", data["email"]):
+            if not re.match(r"^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", data["email"]):
                 return JsonResponse({"message": "INVALID_EMAIL"}, status=400)
             
-            #if not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$", data["password"]):
+            if not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$", data["password"]):
                 return JsonResponse({"message": "INVALID_PASSWORD)"}, status=400)
             
             User.objects.create(
