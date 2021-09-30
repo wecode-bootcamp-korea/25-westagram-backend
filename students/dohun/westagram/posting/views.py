@@ -2,7 +2,7 @@ import json
 
 from django.http  import JsonResponse
 from django.views import View
-from .models      import Posting, Comment
+from .models      import Posting, Comment, Like
 from users.models import User
 
 class PostView(View):
@@ -87,3 +87,25 @@ class GetCommentView(View):
 
         except:
             JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
+
+class LikeView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            user_email = data['user']
+            post_id = data['post']
+
+            post = Posting.objects.get(id=post_id)
+            user = User.objects.get(email=user_email)
+
+            if not Like.objects.filter(post=post, user=user).exists():
+                Like.objects.create(
+                    post = post,
+                    user = user
+                )
+                return JsonResponse({'MESSAGE': 'LIKE_SUCCESS'}, status=201)
+            
+            return JsonResponse({'SUCCESS': 'ALREADY_LIKED'}, status=400)
+
+        except:
+            return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
