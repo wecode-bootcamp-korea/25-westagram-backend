@@ -1,5 +1,6 @@
 import json
 import re
+import bcrypt
 
 from django.http import JsonResponse
 from django.views import View
@@ -26,10 +27,12 @@ class SignUpView(View):
         if not re.match('^(?=.*[A-Za-z])(?=.*\d)(?=.*[~!@#$^&*()+|=])[A-Za-z\d~!@#$%^&*()+|=]{8,}$', data['password']):
             return JsonResponse({"message": "비밀번호 조건을 충족되지 않습니다"}, status =401)
 
+        hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
         user.create(
             name         = data['name'],
             email        = data['email'],
-            password     = data['password'],
+            password     = hashed_password,
             phone_number = data['phone_number'],
         )
         
