@@ -7,7 +7,6 @@ from users.models       import User
 
 from my_settings		import SECRET_KEY, ALGORITHM
 
-
 class SignUpView(View):
     def post(self, request):
         try:
@@ -37,7 +36,7 @@ class SignUpView(View):
             User.objects.create(
                 name         = name,
                 email        = email,
-                password     = decoded_password, # 생성하는 비밀번호가 디코드된 비밀번호이어야 함!
+                password     = decoded_password,
                 other_info   = other_info,
                 phone_number = phone_number
             )
@@ -55,19 +54,15 @@ class SignInView(View):
             email    = data['email']
             password = data['password']
 
-            if User.objects.filter(email=email).exists():
-                user = User.objects.get(email=email)
-				
-                if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-                    access_token = jwt.encode(
-						{'id' : user.id}, SECRET_KEY, algorithm = ALGORITHM # 이부분 이해해야함. 시크릿키는 my_settings.py에 있는 것
-					)
+            if not User.objects.filter(email = email).exists():
+                return JsonResponse({'MESSAGE' : 'INVALID_EMAIL'}, status = 401) 
 
-                    return JsonResponse({'access_token' : access_token}, status=200)
+            user = User.objects.get(email = email)
+            if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+                return JsonResponse({'MESSAGE':'INVALID_PASSWORD'}, status = 401)
 
-                return JsonResponse({'MESSAGE' : 'INVALID_PASSWORD'}, status=401)
-
-            return JsonResponse({'MESSAGE' : 'INVALID_USER_EMAIL'}, status=401)
+            access_token = jwt.encode({'id' : user.id}, SECRET_KEY, algorithm=ALGORITHM)
+            return JsonResponse({'ACCESS_TOKEN' : access_token}, status = 200)
 
         except KeyError :
             return JsonResponse({'MESSAGE' : "KEY_ERROR"}, status = 400)
