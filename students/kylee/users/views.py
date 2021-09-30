@@ -7,8 +7,7 @@ from django.views           import View
 from django.utils           import timezone
 from django.http            import JsonResponse
 from users.models           import User
-from django.core.exceptions import ValidationError
-from my_settings            import MY_ALGORITMS, MY_SECRET_KEY
+from westagram.settings     import ALGORITHMS ,SECRET_KEY
 from datetime               import timedelta
 
 class SignupView(View) :
@@ -24,10 +23,10 @@ class SignupView(View) :
             password  = data['password']
             birthday  = data.get('birthday', None)
 
-            email_reg = r"^[\w+-\_.]+@[\w]+\.[\w]+$"
-            regex_email     = re.compile(email_reg)
+            email_reg   = r"^[\w+-\_.]+@[\w]+\.[\w]+$"
+            regex_email = re.compile(email_reg)
 
-            password_reg = r"^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+=-])[a-zA-Z0-9!@#$%^&*()_+=-]{8,}$"
+            password_reg   = r"^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+=-])[a-zA-Z0-9!@#$%^&*()_+=-]{8,}$"
             regex_passowrd = re.compile(password_reg)
 
             if not regex_email.match(email) :
@@ -72,8 +71,7 @@ class LoginView(View) :
             user = User.objects.get(email=email)
 
             if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')) :
-
-                token = jwt.encode({'email':email, 'exp':timezone.now()+timedelta(weeks=3)}, MY_SECRET_KEY, MY_ALGORITMS)
+                token = jwt.encode({'email':email, 'exp':timezone.now()+timedelta(weeks=3)}, SECRET_KEY, ALGORITHMS)
             
                 return JsonResponse({'message':'SUCCESS', 'token':token}, status=200)
             
