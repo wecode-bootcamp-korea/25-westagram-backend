@@ -1,11 +1,12 @@
 import json
 import re
-import bcrypt
+import bcrypt, jwt
 
 from django.http import JsonResponse
 from django.views import View
 
 from users.models import User
+from my_settings import SECRET_KEY
 
 class SignUpView(View):
     def post(self, request):
@@ -39,7 +40,7 @@ class SignUpView(View):
         if data.get('profile'):
             user.last().profile = data['profile']
 
-        return JsonResponse({'CREATED':'SUCCESS'}, status = 201)
+        return JsonResponse({'CREATED' : 'SUCCESS'}, status = 201)
 
 class LoginView(View):
     def post(self, request):
@@ -47,12 +48,14 @@ class LoginView(View):
         user = User.objects.filter(email = data['email'])
 
         if 'email' not in data:
-            return JsonResponse({"message": "email_KEY_ERROR"}, status = 400)
+            return JsonResponse({"message" : "email_KEY_ERROR"}, status = 400)
 
         if 'password' not in data:
-            return JsonResponse({"message": "password_KEY_ERROR"}, status = 400)
+            return JsonResponse({"message" : "password_KEY_ERROR"}, status = 400)
 
         if not (user.exists() and bcrypt.checkpw(data['password'].encode('utf-8'), user.first().password.encode('utf'))):
-            return JsonResponse({"message": "INVALID_USER"}, status = 401)
+            return JsonResponse({"message" : "INVALID_USER"}, status = 401)
 
-        return JsonResponse({'message':'SUCCESS'}, status = 200)
+        encoded_jwt = jwt.encode({'user' : user.first().id}, SECRET_KEY, algorithm = 'HS256')
+
+        return JsonResponse({'access_token' : encoded_jwt}, status = 201)
