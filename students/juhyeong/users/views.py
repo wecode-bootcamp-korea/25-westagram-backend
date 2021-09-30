@@ -6,7 +6,7 @@ from django.views import View
 
 from users.models import User
 
-class SignUpsView(View):
+class SignUpView(View):
     def post(self, request):
         data = json.loads(request.body)
         user = User.objects
@@ -38,7 +38,7 @@ class SignUpsView(View):
 
         return JsonResponse({'CREATED':'SUCCESS'}, status = 201)
 
-class LoginsView(View):
+class LoginView(View):
     def post(self, request):
         data = json.loads(request.body)
         user = User.objects
