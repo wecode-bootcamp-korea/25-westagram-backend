@@ -1,6 +1,7 @@
 import bcrypt
 import json
 import jwt
+import re
 
 from django.views           import View
 from django.utils           import timezone
@@ -10,71 +11,53 @@ from django.core.exceptions import ValidationError
 from my_settings            import MY_ALGORITMS, MY_SECRET_KEY
 from datetime               import timedelta
 
-#python manage.py runserver 0:8000
-
-#10.58.4.21:8000/users/signup 
 class SignupView(View) :
     def post(self, request) :
 
         try :
 
             data = json.loads(request.body)
-            print(data)
 
             name      = data.get('name', None)
             telephone = data.get('telephone', None)
             email     = data['email']
             password  = data['password']
             birthday  = data.get('birthday', None)
+
+            email_reg = r"^[\w+-\_.]+@[\w]+\.[\w]+$"
+            regex_email     = re.compile(email_reg)
+
+            password_reg = r"^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+=-])[a-zA-Z0-9!@#$%^&*()_+=-]{8,}$"
+            regex_passowrd = re.compile(password_reg)
+
+            if not regex_email.match(email) :
+                return JsonResponse({'message':'이메일은 @와 . 이 들어가야 합니다.'}, status=400)
             
             if User.objects.filter(email=email).exists() :
-                print(User.objects.filter(email=email))
                 return JsonResponse({'message':'기존재 이메일입니다.'}, status=400)
+
+            if len(password) < 8 :
+                return JsonResponse({'message':'비밀번호는 최소 8글자로 설정해주세요.'}, status=400)
+
+            if not regex_passowrd.match(password) :
+                return JsonResponse({'message':'비밀번호는 숫자/문자/특수문자로 구성되어야 합니다.'}, status=400)
                 
-            user = User.objects.create(
+            User(
                 email     = email,
-                password  = password,
+                password  = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
                 name      = name,
                 telephone = telephone,
                 birthday  = birthday
-            )
-            
-            print(user)
-
-            user.full_clean()
-
-            print(1)
-            
-            user.password = user.password.encode('utf-8')
-            user.password = bcrypt.hashpw(user.password, bcrypt.gensalt())
-            user.password = user.password.decode('utf-8')
-
-            print(2)
-
-            user.save()
-            
-            print(3)
+            ).save()
             
             return JsonResponse({'mesage':'SUCCESS'},status=201)
         
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
 
-        except ValidationError as msg :
-            if User.objects.filter(email=email).exists() :
-                User.objects.filter(email=email).delete()
-
-            messages = ''
-
-            for message in msg.messages :
-                messages += message
-
-            return JsonResponse({'message':messages}, status=400)
-
         except json.decoder.JSONDecodeError :
-            return JsonResponse({'message':'값을 하나라도 입력해주세요'})
+            return JsonResponse({'message':'최소 1개 이상의 값을 입력해야 합니다.'})
 
-#10.58.4.21:8000/users/login
 class LoginView(View) :
     def post(self, request) :
         try :
@@ -84,23 +67,20 @@ class LoginView(View) :
             password = data['password']
         
             if not User.objects.filter(email=email).exists() :
-                return JsonResponse({'message':'Account does not exist'}, status=401)
+                return JsonResponse({'message':'계정이 존재하지 않습니다.'}, status=401)
             
             user = User.objects.get(email=email)
 
-            inputed_password = password.encode('utf-8')
-            db_password      = user.password.encode('utf-8')
-
-            if bcrypt.checkpw(inputed_password, db_password) :
+            if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')) :
 
                 token = jwt.encode({'email':email, 'exp':timezone.now()+timedelta(weeks=3)}, MY_SECRET_KEY, MY_ALGORITMS)
             
                 return JsonResponse({'message':'SUCCESS', 'token':token}, status=200)
             
-            return JsonResponse({'message':'Unauthorized'}, status=401)
+            return JsonResponse({'message':'비밀번호를 확인해주세요'}, status=401)
 
         except KeyError :
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
 
         except json.decoder.JSONDecodeError :
-            return JsonResponse({'message':'값을 하나라도 입력해주세요'})
+            return JsonResponse({'message':'최소 1개 이상의 값을 입력해야 합니다.'})

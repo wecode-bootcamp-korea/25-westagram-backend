@@ -11,7 +11,11 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib     import Path
-from my_settings import *
+from my_settings import (
+    MY_ALGORITMS,
+    MY_DATABASES,
+    MY_SECRET_KEY
+)
 
 import pymysql
 
@@ -27,6 +31,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = MY_SECRET_KEY
 
+ALGORITHMS = MY_ALGORITMS
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -36,14 +42,14 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     # 'django.contrib.admin',
     # 'django.contrib.auth',
-    'corsheaders',
-    'users',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -59,16 +65,13 @@ MIDDLEWARE = [
 
 APPEND_SLASH = False
 
-CROSS_ORIGIN_ALLOW_ALL = True
-CROOS_ORIGIN_CREDENTIAL = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIAL = True
 
 CORS_ALLOW_METHODS = (
     'GET',
     'POST',
-    'PUT',
-    'PATCH',
-    'DELETE',
-    'OPTIONS',
+    'OPTIONS'
 )
 
 CORS_ALLOW_HEADERS = (
