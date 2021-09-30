@@ -44,7 +44,7 @@ class SignUpView(View):
 class LoginView(View):
     def post(self, request):
         data = json.loads(request.body)
-        user = User.objects
+        user = User.objects.filter(email = data['email'])
 
         if 'email' not in data:
             return JsonResponse({"message": "email_KEY_ERROR"}, status = 400)
@@ -52,7 +52,7 @@ class LoginView(View):
         if 'password' not in data:
             return JsonResponse({"message": "password_KEY_ERROR"}, status = 400)
 
-        if not user.filter(email=data['email']).filter(password = data['password']).exists():
+        if not (user.exists() and bcrypt.checkpw(data['password'].encode('utf-8'), user.first().password.encode('utf'))):
             return JsonResponse({"message": "INVALID_USER"}, status = 401)
 
         return JsonResponse({'message':'SUCCESS'}, status = 200)
