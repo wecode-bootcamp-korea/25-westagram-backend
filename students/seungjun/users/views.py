@@ -1,9 +1,11 @@
-import json, re, bcrypt
+import json, re, bcrypt, jwt
+from json.decoder       import JSONDecodeError
 
-from django.http  import JsonResponse
-from django.views import View
+from django.http        import JsonResponse
+from django.views       import View
 
-from users.models import User
+from users.models       import User
+from westagram.settings import SECRET_KEY
 
 class SignUpView(View):
     def post(self, request):
@@ -42,6 +44,8 @@ class SignUpView(View):
             )
             return JsonResponse({'message':'SUCCESS'}, status=201)     
 
+        except JSONDecodeError:
+            return JsonResponse({'message':'JSON_DECODE_ERROR'}, status=400)
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
 
@@ -51,16 +55,17 @@ class LogInView(View):
             data     = json.loads(request.body)
             email    = data['email']
             password = data['password']
+            user     = User.objects.get(email=email)
 
-            if not User.objects.filter(email=email).exists():
-                return JsonResponse({'message':'INVALID_EMAIL'}, status=401)
-
-            user = User.objects.get(email=email)
-            
-            if user.password != password:
+            if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
                 return JsonResponse({'message':'INVALID_USER'}, status=401)
 
-            return JsonResponse({'message':'SUCCESS'}, status=200)
-            
+            token = jwt.encode({'id': user.id}, SECRET_KEY, algorithm = 'HS256')
+            return JsonResponse({'access_token': token,'message':'SUCCESS'}, status=200)
+
+        except User.DoesNotExist:
+            return JsonResponse({'message':'INVALID_EMAIL'}, status=401)
+        except JSONDecodeError:
+            return JsonResponse({'message':'JSON_DECODE_ERROR'}, status=400)
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
