@@ -16,7 +16,6 @@ class SignupView(View):
             user_email = data['email']
             user_pw    = data['password']
             
-
             if not validate_email(user_email):
                 return JsonResponse({'message' : 'INVALID_EMAIL'}, status = 400)
 
@@ -26,11 +25,9 @@ class SignupView(View):
             if User.objects.filter(email=data['email']).exists():
                 return JsonResponse({'message' : 'DUPLICATED_EMAIL'}, status=400)
 
-            encoded_pw  = user_pw.encode('utf-8')
-            salt        = bcrypt.gensalt()
-            hashed_pw   = bcrypt.hashpw(encoded_pw, salt)
+            hashed_pw   = bcrypt.hashpw(user_pw.encode('utf-8'), bcrypt.gensalt())
             
-            if bcrypt.checkpw(encoded_pw, hashed_pw):
+            if bcrypt.checkpw(user_pw.encode('utf-8'), hashed_pw):
                 user    = User.objects.create(
                         name            = data['name'],
                         email           = data['email'],
@@ -47,13 +44,13 @@ class SignupView(View):
 class LoginView(View):
     def post(self, request):
         try:
-            data        = json.loads(request.body)
-            user_email  = data['email']
-            user_pw     = data['password']
-            user        = User.objects.get(email=user_email)
-            token       = jwt.encode({'id' : user.id}, SECRET_KEY, algorithm=ALGORITHM)
+            data            = json.loads(request.body)
+            user_email      = data['email']
+            user_password   = data['password']
+            user            = User.objects.get(email=user_email)
+            token           = jwt.encode({'id' : user.id}, SECRET_KEY, algorithm=ALGORITHM)
 
-            if not bcrypt.checkpw(user_pw.encode('utf-8'), user.password.encode('utf-8')):
+            if not bcrypt.checkpw(user_password.encode('utf-8'), user.password.encode('utf-8')):
                 return JsonResponse({"message": "INVALID_USER"}, status = 401,)
             
             return JsonResponse({"message": "SUCCESS", "access_token" : token}, status = 200)

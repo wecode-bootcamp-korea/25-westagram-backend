@@ -14,7 +14,7 @@ def validate_password(password):
     users_password   = re.match(PASSWORD_PATTERN, password)
     PASSWORD_LENGTH  = 8
 
-    if users_password == None or PASSWORD_LENGTH < 8:
+    if users_password == None or len(password) < PASSWORD_LENGTH:
         return False
     else:
         return users_password.group()
