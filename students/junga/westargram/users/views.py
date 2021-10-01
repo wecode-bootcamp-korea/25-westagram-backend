@@ -13,14 +13,14 @@ class SignUpView(View):
             if User.objects.filter(email=data['email']).exists():
                 return JsonResponse({'message' : 'ERROR_EMAIL_ALREADY_EXIST'}, status=400)
 
-            if (data['email'] == '') or (data['password'] == ''):
+            if data['email'] == '' or data['password'] == '':
                 return JsonResponse({'message' : 'KEY_ERROR'}, status=400) 
            
             if not re.match(r"^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", data["email"]):
-                return JsonResponse({"message": "INVALID_EMAIL"}, status=400)
+                return JsonResponse({"message": "INVALID_EMAIL"}, status=404)
             
             if not re.match(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$", data["password"]):
-                return JsonResponse({"message": "INVALID_PASSWORD)"}, status=400)
+                return JsonResponse({"message": "INVALID_PASSWORD)"}, status=404)
             
             User.objects.create(
                 name = data['name'],
