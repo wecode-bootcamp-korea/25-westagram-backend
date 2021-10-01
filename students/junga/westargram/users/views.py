@@ -23,10 +23,10 @@ class SignUpView(View):
                 return JsonResponse({"message": "INVALID_PASSWORD)"}, status=404)
             
             User.objects.create(
-                name = data['name'],
-                email = data['email'],
-                password = data['password'],
-                phone_number = data['phone_number'],
+                name              = data['name'],
+                email             = data['email'],
+                password          = data['password'],
+                phone_number      = data['phone_number'],
                 other_information = data.get('other_informaion')
             )
             return JsonResponse({'message' : 'SUCCESS'} , status = 201)
