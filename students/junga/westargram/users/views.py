@@ -13,7 +13,7 @@ class SignUpView(View):
             if User.objects.filter(email=data['email']).exists():
                 return JsonResponse({'message' : 'ERROR_EMAIL_ALREADY_EXIST'}, status=400)
 
-            if data['email'] == '' or data['password'] == '':
+            if not data['email'] or not data['password']:
                 return JsonResponse({'message' : 'KEY_ERROR'}, status=400) 
            
             if not re.match(r"^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", data["email"]):
