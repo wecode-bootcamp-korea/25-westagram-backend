@@ -1,8 +1,8 @@
 import re
 
 def validate_email(address):
-    email_pattern = re.compile('[a-zA-Z0-9_\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-]+')
-    users_email   = re.match(email_pattern, address)
+    EMAIL_PATTERN = '[a-zA-Z0-9_\.\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-]+'
+    users_email   = re.match(EMAIL_PATTERN, address)
 
     if users_email == None:
         return False
@@ -10,8 +10,8 @@ def validate_email(address):
         return users_email.group()    
 
 def validate_password(password):
-    password_pattern = re.compile('(?=.*[a-z])(?=.*[0-9])(?=.*[@!#$%&?*$]).+')
-    users_password   = re.match(password_pattern, password)
+    PASSWORD_PATTERN = '(?=.*[a-z])(?=.*[0-9])(?=.*[@!#$%&?*$]).+'
+    users_password   = re.match(PASSWORD_PATTERN, password)
     PASSWORD_LENGTH  = 8
 
     if users_password == None or PASSWORD_LENGTH < 8:
