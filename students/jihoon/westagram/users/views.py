@@ -15,8 +15,8 @@ class SignUpView(View):
             name        = data['name']
             email       = data['email']
             password    = data['password']
-            contact     = data['contact']
-            other_info  = data['other_info']
+            contact     = data.get['contact']
+            other_info  = data.get['other_info']
 
             regex_email         =   "^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
             regex_password      =   "^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$"
@@ -26,7 +26,6 @@ class SignUpView(View):
 
             if not re.match(regex_password, password):
                 return JsonResponse({'message': 'INVAILD_PASSWORD'}, status=400)
-
 
             if User.objects.filter(email=email).exists():
                 return JsonResponse({'message':'EMAIL_ALREADY_EXISTS'}, status=400)
