@@ -23,23 +23,25 @@ class SignupView(View) :
             password  = data['password']
             birthday  = data.get('birthday', None)
 
+            PASSWORD_LENGTH = 8
+
             email_reg   = r"^[\w+-\_.]+@[\w]+\.[\w]+$"
             regex_email = re.compile(email_reg)
 
-            password_reg   = r"^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+=-])[a-zA-Z0-9!@#$%^&*()_+=-]{8,}$"
+            password_reg   = r"^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+=-])[a-zA-Z0-9!@#$%^&*()_+=-]$"
             regex_passowrd = re.compile(password_reg)
 
             if not regex_email.match(email) :
-                return JsonResponse({'message':'이메일은 @와 . 이 들어가야 합니다.'}, status=400)
+                return JsonResponse({'message':'Invalid Email'}, status=400)
             
             if User.objects.filter(email=email).exists() :
-                return JsonResponse({'message':'기존재 이메일입니다.'}, status=400)
+                return JsonResponse({'message':'Aleady exists email'}, status=400)
 
-            if len(password) < 8 :
-                return JsonResponse({'message':'비밀번호는 최소 8글자로 설정해주세요.'}, status=400)
+            if len(password) < PASSWORD_LENGTH :
+                return JsonResponse({'message':'Password Length Error'}, status=400)
 
             if not regex_passowrd.match(password) :
-                return JsonResponse({'message':'비밀번호는 숫자/문자/특수문자로 구성되어야 합니다.'}, status=400)
+                return JsonResponse({'message':'Password regex error'}, status=400)
                 
             User(
                 email     = email,
@@ -54,8 +56,8 @@ class SignupView(View) :
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
 
-        except json.decoder.JSONDecodeError :
-            return JsonResponse({'message':'최소 1개 이상의 값을 입력해야 합니다.'})
+        except json.decoder.JSONDecodeError as msg :
+            return JsonResponse({'message':msg})
 
 class LoginView(View) :
     def post(self, request) :
@@ -66,7 +68,7 @@ class LoginView(View) :
             password = data['password']
         
             if not User.objects.filter(email=email).exists() :
-                return JsonResponse({'message':'계정이 존재하지 않습니다.'}, status=401)
+                return JsonResponse({'message':'Account does not exists.'}, status=401)
             
             user = User.objects.get(email=email)
 
@@ -75,10 +77,10 @@ class LoginView(View) :
             
                 return JsonResponse({'message':'SUCCESS', 'token':token}, status=200)
             
-            return JsonResponse({'message':'비밀번호를 확인해주세요'}, status=401)
+            return JsonResponse({'message':'Please check password'}, status=401)
 
         except KeyError :
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
 
-        except json.decoder.JSONDecodeError :
-            return JsonResponse({'message':'최소 1개 이상의 값을 입력해야 합니다.'})
+        except json.decoder.JSONDecodeError as msg :
+            return JsonResponse({'message':msg})

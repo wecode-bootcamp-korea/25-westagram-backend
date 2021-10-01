@@ -10,14 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
+import pymysql
+
 from pathlib     import Path
 from my_settings import (
     MY_ALGORITMS,
-    MY_DATABASES,
     MY_SECRET_KEY
 )
-
-import pymysql
 
 pymysql.install_as_MySQLdb()
 
@@ -31,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = MY_SECRET_KEY
 
-ALGORITHMS = MY_ALGORITMS
+ALGORITHMS = os.environ.get('ALGORITHMS')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -71,7 +71,10 @@ CORS_ALLOW_CREDENTIAL = True
 CORS_ALLOW_METHODS = (
     'GET',
     'POST',
-    'OPTIONS'
+    'OPTIONS',
+    'PUT',
+    'PATCH',
+    'DELETE'
 )
 
 CORS_ALLOW_HEADERS = (
@@ -110,7 +113,17 @@ WSGI_APPLICATION = 'westagram.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = MY_DATABASES
+DATABASES = {
+    'default': {
+        'ENGINE': os.environ.get('ENGINE'),
+        'NAME': os.path.join(BASE_DIR, os.environ.get('NAME')), 
+        'USER' : os.environ.get('USER'),
+        'PASSWORD' : os.environ.get('PASSWORD'),
+        'HOST' : os.environ.get('HOST'),
+        'PORT' : os.environ.get('PORT')
+    }
+}
+
 
 
 # Password validation
