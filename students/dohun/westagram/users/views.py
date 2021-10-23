@@ -26,18 +26,18 @@ class SignupView(View):
             decoded_password  = hashed_password.decode('utf-8')
 
             User.objects.create(
-                name         = data['name'],
+                name         = data.get('name'),
                 email        = email,
                 password     = decoded_password,
-                phone_number = data['phone_number'],
-                etc_info     = data.get('etc_info', 'please choose username')
+                phone_number = data.get('phone_number'),
+                etc_info     = data.get('etc_info')
             )
 
             return JsonResponse({'MESSAGE' : 'SUCCESS'}, status=201)
         
         except KeyError:
             return JsonResponse({'MESSAGE': 'KEY_ERROR'}, status=400)
-
+            
 class LoginView(View):
     def post(self, request):
 
