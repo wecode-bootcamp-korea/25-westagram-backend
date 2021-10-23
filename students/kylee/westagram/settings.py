@@ -10,10 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from pathlib     import Path
-from my_settings import *
-
+import os
 import pymysql
+
+from pathlib     import Path
+from my_settings import (
+    MY_ALGORITMS,
+    MY_SECRET_KEY
+)
 
 pymysql.install_as_MySQLdb()
 
@@ -27,6 +31,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = MY_SECRET_KEY
 
+ALGORITHMS = os.environ.get('ALGORITHMS')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -36,14 +42,14 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     # 'django.contrib.admin',
     # 'django.contrib.auth',
-    'corsheaders',
-    'users',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -59,16 +65,16 @@ MIDDLEWARE = [
 
 APPEND_SLASH = False
 
-CROSS_ORIGIN_ALLOW_ALL = True
-CROOS_ORIGIN_CREDENTIAL = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIAL = True
 
 CORS_ALLOW_METHODS = (
     'GET',
     'POST',
+    'OPTIONS',
     'PUT',
     'PATCH',
-    'DELETE',
-    'OPTIONS',
+    'DELETE'
 )
 
 CORS_ALLOW_HEADERS = (
@@ -107,7 +113,17 @@ WSGI_APPLICATION = 'westagram.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = MY_DATABASES
+DATABASES = {
+    'default': {
+        'ENGINE': os.environ.get('ENGINE'),
+        'NAME': os.path.join(BASE_DIR, os.environ.get('NAME')), 
+        'USER' : os.environ.get('USER'),
+        'PASSWORD' : os.environ.get('PASSWORD'),
+        'HOST' : os.environ.get('HOST'),
+        'PORT' : os.environ.get('PORT')
+    }
+}
+
 
 
 # Password validation
@@ -140,7 +156,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
